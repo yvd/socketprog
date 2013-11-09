@@ -80,8 +80,7 @@ int main(int argc, char const *argv[])
 				//ping node z and continue listening?
 			}
 		}
-	}
-	while(1);
+	}while(1);
 	c = close(sockfd);
 	std::cout<<addr[0]<<" "<<addr[1]<<"\n";
 	std::cout<<port[0]<<" "<<port[1]<<"\n";
