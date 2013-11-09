@@ -26,7 +26,7 @@ void loadcfg()// loads FileMesh.cfg i.e sets n, addr and finfo according to the 
 	while(input_file.good())
 	{
 		std::string str, par;
-		int fnum,psn,i;
+		int psn;
 		getline(input_file,str);
 		
 		if(str.length() < 2)
@@ -60,13 +60,22 @@ int main(int argc, char const *argv[])
 	int sockfd;
 	struct sockaddr_in my_addr, client, dest_node;
 	socklen_t clientlength = sizeof(client);
-	sockfd = socket(PF_INET,SOCK_DGRAM,0);
-	my_addr.sin_family = AF_INET;
-	my_addr.sin_port = htons(atoi(port[node_id].c_str()));
-	my_addr.sin_addr.s_addr = inet_addr(addr[node_id].c_str());
+	if((sockfd = socket(PF_INET,SOCK_DGRAM,0)) == -1)//it means socket was not created
+	{
+		std::cout<<"Unable to create socket\n";
+		return -1;
+	}
+	std::cout<<"sockfd value : "<<sockfd<<"\n";
+	my_addr.sin_family = AF_INET; //assigning family set
+	my_addr.sin_port = htons(atoi(port[node_id].c_str())); //assigning port number
+	my_addr.sin_addr.s_addr = inet_addr(addr[node_id].c_str());//assigning ip address
 	memset(&(my_addr.sin_zero),'\0',8);//zero the rest of the struct
-	bind(sockfd,(struct sockaddr *)&my_addr, sizeof(struct sockaddr));
-	
+	if((bind(sockfd,(struct sockaddr *)&my_addr, sizeof(struct sockaddr))) == -1)//it means binding failed
+	{
+		std::cout<<"Unable to bind to the socket.\n";
+		return -1;
+	}
+	std::cout<<"Binded!!\n";
 	do{  //k gives the number of bytes recieved
 		int k = recvfrom(sockfd,recieve_buffer,1000,0,(struct sockaddr*)&client,&clientlength);
 		if(k < 0)
@@ -75,19 +84,36 @@ int main(int argc, char const *argv[])
 			continue;
 		}
 		else if(k > 0)
-		{	
+		{	/* Packet Format
+                  IPAdress Port Request md5sum
+               eg:  10.6.162.77 1300 upload aa7dyad.....   
+			*/
 			std::string pkt = std::string(recieve_buffer);//converting the msg to string format
+			int psn;
+			psn = pkt.find(" ");
+			string client_addr = pkt.substr(0,psn);
+			pkt = pkt.substr(psn + 1);
+			psn = pkt.find(" ");
+			int client_port = atoi((pkt.substr(0,psn)).c_str());
+			pkt = pkt.substr(psn + 1);
+			psn = pkt.find(" ");
+			string req = pkt.substr(0,psn);
+			string md5str = pkt.substr(psn + 1);
 			int md5sum = 0;//md5sum
 			int z = md5modn(md5sum,n);
-			if(z != node_id)//current node is not the destination node for the client
+			if(z == node_id)//current node is the destination node for the client
+			{
+				
+			}
+			else //current node is not the destination node for the client
 			{
 				std::string dst_addr = addr[z],dst_finfo = finfo[z];//get the info of the destination node
 				int dst_port = atoi(port[z].c_str());
 				//To send data to that node, create a struct sockaddr for that node
                 dest_node.sin_family = AF_INET; //assigning family set
-                dest_node.sin_port = htons(dst_port); //assigning a port number
+                dest_node.sin_port = htons(dst_port); //assigning port number
                 dest_node.sin_addr.s_addr = inet_addr(dst_addr.c_str()); //assigning ip address
-                memset(&(dest_node.sin_zero),'\0',8); //the rest of the struct is given value zero
+                memset(&(dest_node.sin_zero),'\0',8); //zero the rest of the struct
                 //Recieved data is now transferred to the destination node.
                 //k1 gives the number of bytes sent
                 int k1 = sendto(sockfd,recieve_buffer,1000,0,(struct sockaddr*)&dest_node,sizeof(struct sockaddr)); 
@@ -96,10 +122,6 @@ int main(int argc, char const *argv[])
                     std::cout<<"Sending to the Destination Node "<<z<<" failed :/\nExiting.......\n";  
                     return 0;
                 }
-			}
-			else
-			{
-				//ping node z and continue listening?
 			}
 		}
 	}
