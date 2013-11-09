@@ -91,14 +91,14 @@ int main(int argc, char const *argv[])
 			std::string pkt = std::string(recieve_buffer);//converting the msg to string format
 			int psn;
 			psn = pkt.find(" ");
-			string client_addr = pkt.substr(0,psn);
+			std::string client_addr = pkt.substr(0,psn);
 			pkt = pkt.substr(psn + 1);
 			psn = pkt.find(" ");
 			int client_port = atoi((pkt.substr(0,psn)).c_str());
 			pkt = pkt.substr(psn + 1);
 			psn = pkt.find(" ");
-			string req = pkt.substr(0,psn);
-			string md5str = pkt.substr(psn + 1);
+			std::string req = pkt.substr(0,psn);
+			std::string md5str = pkt.substr(psn + 1);
 			int md5sum = 0;//md5sum
 			int z = md5modn(md5sum,n);
 			if(z == node_id)//current node is the destination node for the client
