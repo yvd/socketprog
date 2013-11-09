@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <string>
 #include <string.h>
-
+#include "md5.h"
 std::vector<std::string> addr,port,finfo;//addr stores the addresses,port stores the port numbers and finfo stores the file info
 int n;// number of nodes
 

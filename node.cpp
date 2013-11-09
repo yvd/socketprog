@@ -8,14 +8,10 @@
 #include <netinet/in.h>
 #include <string>
 #include <string.h>
-
+#include "md5.h"
 std::vector<std::string> addr,port,finfo;//addr stores the addresses,port stores the port numbers and finfo stores the file info
 int n;// number of nodes
 
-int md5modn(int a, int b)
-{
-	return 1;//lol
-}
 
 void loadcfg()// loads FileMesh.cfg i.e sets n, addr and finfo according to the file.
 {
@@ -99,8 +95,7 @@ int main(int argc, char const *argv[])
 			psn = pkt.find(" ");
 			std::string req = pkt.substr(0,psn);
 			std::string md5str = pkt.substr(psn + 1);
-			int md5sum = 0;//md5sum
-			int z = md5modn(md5sum,n);
+			int z = md5modn(md5str,n);
 			if(z == node_id)//current node is the destination node for the client
 			{
 				
