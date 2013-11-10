@@ -16,10 +16,10 @@ SRC := $(wildcard $(SRC_DIR)/*.cpp)
 all: $(PROJECT_DIR)/$(TARGET)
 
 $(PROJECT_DIR)/$(TARGET): $(SRC)
-	@$(CC) -c client.cpp
-	@$(CC) -o $(TARGET) node.cpp	
+	@$(CC) -o client client.cpp md5.cpp
+	@$(CC) -o $(TARGET) node.cpp md5.cpp	
 	
 clean:
 	@$(ECHO) -n "Cleaning..."
-	@$(RM) -rf $(TARGET) *~ a.out *.o
+	@$(RM) -rf $(TARGET) *~ a.out *.o client
 	@$(ECHO) "Done"

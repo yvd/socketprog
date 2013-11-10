@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
 {
 	int sockfd,opflag,node,node_id,dst_port,k1,tcpsockfd,tcp1sockfd;
 	struct sockaddr_in my_addr,node_addr,node1;
-	std::string fname,md5sum = "",dst_addr,pkt;
+	std::string fname,md5sum = "",dst_addr,pkt="";
 	char buffer[1000];
 	loadcfg();
 	
@@ -82,7 +82,7 @@ int main(int argc, char const *argv[])
         md5sum=str1;
         tempfile.close();
         system("rm tmp");
-        //std::cout<<md5modn(md5sum,n)<<" "<<str1<<"\n";
+        std::cout<<md5modn(md5sum,n)<<" "<<str1<<"\n";
         node_id = md5modn(md5sum,n);
 	}
 	else  //downloading file
@@ -94,6 +94,7 @@ int main(int argc, char const *argv[])
     	std::cout<<"Unable to create socket\n";
         return 0;
     }
+    std::cout<<"Created socket :)\n";
     my_addr.sin_family = AF_INET; //assigning family set
 	my_addr.sin_port = htons('4000'); //assigning port number
 	my_addr.sin_addr.s_addr = inet_addr("127.0.0.1");//assigning ip address
@@ -104,14 +105,15 @@ int main(int argc, char const *argv[])
         std::cout<<"Unable to bind to the socket.\n";
         return 0;
     }
+    std::cout<<"Binded :)\n";
     dst_port = atoi(port[node_id].c_str());
     dst_addr = addr[node_id];
     node_addr.sin_family = AF_INET; //assigning family set
     node_addr.sin_port = htons(dst_port); //assigning port number
     node_addr.sin_addr.s_addr = inet_addr(dst_addr.c_str()); //assigning ip address
-    memset(&(dest_node.sin_zero),'\0',8); //zero the rest of the struct
+    memset(&(node_addr.sin_zero),'\0',8); //zero the rest of the struct
 
-    pkt = dst_addr + " " + dst_port + " " + opflag + " " + md5sum;//md5sum+" "+IP+":"+portnum+" "+operation;
+   // pkt = dst_addr + " " + dst_port + " " + opflag + " " + md5sum;//md5sum+" "+IP+":"+portnum+" "+operation;
     k1 = sendto(sockfd,pkt.c_str(),1000,0,(struct sockaddr*)&node_addr,sizeof(struct sockaddr));
     if(k1<0)
     {
@@ -128,7 +130,7 @@ int main(int argc, char const *argv[])
     }
 
 
-    if(bind(tcpsockfd,(struct sockaddr*)&myaddr,sizeof(myaddr))<0)
+    if(bind(tcpsockfd,(struct sockaddr*)&my_addr,sizeof(my_addr))<0)
     {
         std::cout<<"Unable to bind to the socket.\n";
         return 0;
@@ -139,7 +141,7 @@ int main(int argc, char const *argv[])
         return 0;               
     }
     socklen_t size = sizeof(struct sockaddr_in);
-    if ((tcpsock = accept(tcpsockfd, (struct sockaddr *)&node1, &size )) < 0 ){
+    if ((tcp1sockfd = accept(tcpsockfd, (struct sockaddr *)&node1, &size )) < 0 ){
         std::cout<<"Accepting via tcp socket failed.\nExiting.......\n";
         return 0;        
     }
