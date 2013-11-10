@@ -191,9 +191,6 @@ int main(int argc, char const *argv[])
     	else if(n_bytes == 0) std::cout<<"File retrieved\n";
     	
     }
-    
-    close(tcpsock);
-    close(tcpsockfd);
 
 	return 0;
 }
