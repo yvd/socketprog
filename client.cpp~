@@ -155,34 +155,36 @@ int main(int argc, char const *argv[])
     if(opflag == 1)
     {
     	int length, bytes_sent;
-    	ifstream in;
-    	string s;
+    	std::ifstream in;
+    	std::string s;
     	in.open(fname.c_str());
     	if(in,is_open()) {
     		while(getline(in, s)){
+    			s += "\n";
     			length = strlen(s.c_str());
     			
-    			if((bytes_sent = send(tcpsock,s.c_str(), len+1, 0)) < 0) {
-    				std::cout<<"lol sending failed\n";
+    			if((bytes_sent = send(tcp1sockfd,s.c_str(), length+1, 0)) < 0) {
+    				std::cout<<"lololol sending failed\n";
 				return 0;
 			}
 		}
 	}
 	
-	else std::cout<<"Could not open the file lol";
+	else std::cout<<"Could not open the file lolololol";
     }
     
     else
     {
     	char buff[1024];
     	int n_bytes;
-    	ofstream out;
+    	std::ofstream out;
     	out.open((md5sum+".txt").c_str());
     	
-    	while((n_bytes = recv(tcpsock, buff, 1024, 0)) > 0) {
-    		string stuff(buff);
-    		cout<<stuff<<endl;
-    		out<<data<<endl;
+    	while((n_bytes = recv(tcp1sockfd, buff, 1024, 0)) > 0) {
+    		buff[n_bytes] = '\0';
+    		std::string stuff(buff);
+    		std::cout<<stuff<<"\n";
+    		out<<stuff<<"\n";
     	}
     	
     	out.close();
@@ -191,6 +193,9 @@ int main(int argc, char const *argv[])
     	else if(n_bytes == 0) std::cout<<"File retrieved\n";
     	
     }
+    
+    close(tcp1sockfd);
+    close(tcpsockfd);
 
 	return 0;
 }
