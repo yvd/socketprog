@@ -68,5 +68,38 @@ int main(int argc, char const *argv[])
 		std::cout<<"\nInvalid Node Number.\nExiting ....\n";
 		return -1;
 	}
+	std::string md5sum = "";
+	if(opflag == 1)//uploading file
+	{
+		system(("md5sum "+fname +"| awk '{print($1)}' > tmp").c_str()); 
+        std::ifstream tempfile;
+        tempfile.open("tmp");
+        std::string str1;
+        getline(tempfile,str1);
+        md5sum=str1;
+        tempfile.close();
+        system("rm tmp");
+        std::cout<<md5modn(md5sum,n)<<"\n";
+	}
+	else  //downloading file
+	{
+	}
+
+    if((sockfd = socket(PF_INET,SOCK_DGRAM,0)) == -1)
+    {
+    	std::cout<<"Unable to create socket\n";
+        return 0;
+    }
+    my_addr.sin_family = AF_INET; //assigning family set
+	my_addr.sin_port = htons("4000"); //assigning port number
+	my_addr.sin_addr.s_addr = inet_addr("127.0.0.1");//assigning ip address
+	memset(&(my_addr.sin_zero),'\0',8);//zero the rest of the struct
+
+    if(bind(sockfd,(struct sockaddr*)&my_addr,sizeof(my_addr))<0)
+    {
+        std::cout<<"Unable to bind to the socket.\n";
+        return 0;
+    }
+
 	return 0;
 }
