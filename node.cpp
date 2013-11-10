@@ -82,7 +82,7 @@ int main(int argc, char const *argv[])
 		else if(k > 0)
 		{	/* Packet Format
                   IPAdress Port Request md5sum
-               eg:  10.6.162.77 1300 upload aa7dyad.....   
+               eg:  10.6.162.77 1300 1 c19a6e1f83945a2f92193a85cf4b44d4  
 			*/
 			std::string pkt = std::string(recieve_buffer);//converting the msg to string format
 			int psn;
