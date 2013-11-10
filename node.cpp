@@ -98,7 +98,73 @@ int main(int argc, char const *argv[])
 			int z = md5modn(md5str,n);
 			if(z == node_id)//current node is the destination node for the client
 			{
-				
+				int tcpsockfd,k2;
+				struct sockaddr_in client_tcp;
+				socklen_t client_tcplen;
+				char recieve_buffer1[1000];
+				//int k2; // Number of bytes
+
+				if((tcpsockfd = socket(PF_INET,SOCK_STREAM,0)) == -1)
+                {
+                    std::cout<<"Unable to create TCP socket\n";
+					return -1;	
+                }
+                std::cout<<"tcp socket created.YAY!!\n";
+
+                client_tcp.sin_family = AF_INET; //assigning family set
+				client_tcp.sin_port = htons(client_port); //assigning port number
+				client_tcp.sin_addr.s_addr = inet_addr(client_addr.c_str());//assigning ip address
+				memset(&(client_tcp.sin_zero),'\0',8);//zero the rest of the struct
+
+				if(connect(tcpsockfd,(struct sockaddr*)&client_tcp,sizeof(struct sockaddr)) == -1 )
+                {
+                    std::cout<<"TCP connection cannot be established.\nExiting.......";
+                    return -1;
+                }
+
+                if(req == "1")
+                {
+                	std::ofstream out;
+                	out.open((finfo[node_id] + std::string(argv[1]) + "/" + md5str + ".txt").c_str());
+
+                	while((k2 = recv(tcpsockfd, recieve_buffer1, 1000, 0)) > 0) {
+                		recieve_buffer1[k2] = '\0';
+                		std::string stuff(recieve_buffer1);
+                		out<<stuff;
+                	}
+
+                	out.close();
+
+                	if(k2 < 0) {
+                		std::cout<<"Data Receiving Error FLOP\n";
+                	}
+
+                	else if(k2 == 0) {
+                		std::cout<<"Connection closed on user's side LOLMAXX\n";
+                	}
+                }
+
+                else{
+                	std::ifstream in;
+                	int length, bytes_sent;
+                	std::string s;
+                	in.open((finfo[node_id] + std::string(argv[1]) + "/" + md5str + ".txt").c_str());
+
+                	if(in.is_open()) {
+                		while(getline(in, s)) {
+                			s += "\n";
+                			length = strlen(s.c_str());
+                			std::cout<<s;
+                			if((bytes_sent = send(tcpsockfd, s.c_str(), length + 1, 0)) > 0) {
+                				std::cout<<"Failed to send haha\n";
+                			}
+                		}
+                	}
+
+                	else{std::cout<<"Couldn't open the file man, are you even sober?\n";}
+                	in.close();
+                }
+
 			}
 			else //current node is not the destination node for the client
 			{
