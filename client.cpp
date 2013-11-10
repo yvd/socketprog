@@ -7,8 +7,9 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "md5.h"
+#include <cstdlib>
 std::vector<std::string> addr,port,finfo;//addr stores the addresses,port stores the port numbers and finfo stores the file info
 int n;// number of nodes
 
@@ -46,7 +47,7 @@ int main(int argc, char const *argv[])
 {
 	int sockfd,opflag,node,node_id,dst_port,k1,tcpsockfd,tcp1sockfd;
 	struct sockaddr_in my_addr,node_addr,node1;
-	std::string fname,md5sum = "",dst_addr,pkt="";
+	std::string fname,md5sum = "",dst_addr,pkt="",op;
 	char buffer[1000];
 	loadcfg();
 	
@@ -60,9 +61,15 @@ int main(int argc, char const *argv[])
 	
 	std::cout<<"\nEnter the file name you wanted to ";
 	if(opflag == 1)
+	{
 		std::cout<<"upload: ";
+		op = "1";
+	}
 	else
+	{
 		std::cout<<"download: ";
+		op = "2";
+	}
 	std::cin>>fname;
 	std::cout<<"\nInput number of the node you wanted to contact: ";
 	std::cin>>node;
@@ -112,8 +119,7 @@ int main(int argc, char const *argv[])
     node_addr.sin_port = htons(dst_port); //assigning port number
     node_addr.sin_addr.s_addr = inet_addr(dst_addr.c_str()); //assigning ip address
     memset(&(node_addr.sin_zero),'\0',8); //zero the rest of the struct
-
-   // pkt = dst_addr + " " + dst_port + " " + opflag + " " + md5sum;//md5sum+" "+IP+":"+portnum+" "+operation;
+    pkt = dst_addr + " " + port[node_id] + " " + op + " " + md5sum;
     k1 = sendto(sockfd,pkt.c_str(),1000,0,(struct sockaddr*)&node_addr,sizeof(struct sockaddr));
     if(k1<0)
     {
